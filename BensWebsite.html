@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta charset="utf-8">
+        <title>Startpage (made by Ben)</title>
+
+        <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+        <link rel="manifest" href="manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+
+        <script src="https://kit.fontawesome.com/0ffe98d02f.js" crossorigin="anonymous"></script>
+
+        <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+                min-height: 100vh;
+                background: #08080d;
+                color: #f0f0f5;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+
+            /* Ambient background glow */
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background:
+                    radial-gradient(ellipse 60% 50% at 25% 20%, rgba(88, 50, 200, 0.07) 0%, transparent 70%),
+                    radial-gradient(ellipse 50% 60% at 78% 75%, rgba(20, 70, 180, 0.07) 0%, transparent 70%);
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            /* Clock */
+            #clock {
+                position: fixed;
+                left: 28px;
+                top: 28px;
+                z-index: 100;
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                animation: fadeIn 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+            }
+
+            #clock-time {
+                font-size: 1.9rem;
+                font-weight: 200;
+                color: rgba(255, 255, 255, 0.3);
+                letter-spacing: -0.04em;
+            }
+
+            #clock-ampm {
+                font-size: 0.8rem;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.18);
+                letter-spacing: 0.08em;
+            }
+
+            #clock i {
+                animation: blink 1s ease-in-out infinite;
+                font-style: normal;
+            }
+
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.1; }
+            }
+
+            /* Main container */
+            .container {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 16px;
+                animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+            }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to   { opacity: 1; }
+            }
+
+            /* Search bar */
+            .search-form {
+                display: flex;
+                align-items: center;
+                width: 658px;
+                background: rgba(255, 255, 255, 0.055);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 14px;
+                padding: 5px 5px 5px 16px;
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                box-shadow:
+                    0 2px 20px rgba(0, 0, 0, 0.35),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+                transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            }
+
+            .search-form:focus-within {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(255, 255, 255, 0.2);
+                box-shadow:
+                    0 4px 32px rgba(0, 0, 0, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    0 0 0 3px rgba(120, 100, 255, 0.1);
+            }
+
+            .ddg-field {
+                flex: 1;
+                padding: 10px 8px;
+                font-size: 0.95rem;
+                font-family: inherit;
+                font-weight: 400;
+                background: transparent;
+                border: none;
+                outline: none;
+                color: rgba(255, 255, 255, 0.88);
+                letter-spacing: -0.01em;
+            }
+
+            .ddg-field::placeholder {
+                color: rgba(255, 255, 255, 0.25);
+            }
+
+            .ddg-submit {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                background: rgba(255, 255, 255, 0.09);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                cursor: pointer;
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 0.8rem;
+                transition: background 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+                flex-shrink: 0;
+            }
+
+            .ddg-submit:hover {
+                background: rgba(255, 255, 255, 0.16);
+                color: rgba(255, 255, 255, 0.9);
+                transform: scale(1.08);
+            }
+
+            /* Large widget grid */
+            #widgets {
+                display: grid;
+                grid-template-columns: repeat(3, 210px);
+                gap: 14px;
+            }
+
+            /* Small widget grid */
+            #newWidgets {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 10px;
+                width: 658px;
+            }
+
+            /* Large box */
+            .box {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 124px;
+                background: rgba(255, 255, 255, 0.048);
+                border: 1px solid rgba(255, 255, 255, 0.085);
+                color: rgba(255, 255, 255, 0.65);
+                text-decoration: none;
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                border-radius: 18px;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                box-shadow:
+                    0 2px 16px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                            background 0.25s ease,
+                            border-color 0.25s ease,
+                            color 0.25s ease,
+                            box-shadow 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .box::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 55%);
+                pointer-events: none;
+            }
+
+            .box:hover {
+                transform: translateY(-5px) scale(1.025);
+                background: rgba(255, 255, 255, 0.085);
+                border-color: rgba(255, 255, 255, 0.17);
+                color: rgba(255, 255, 255, 0.95);
+                box-shadow:
+                    0 18px 44px rgba(0, 0, 0, 0.45),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            }
+
+            /* Small box */
+            .smallbox {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 58px;
+                background: rgba(255, 255, 255, 0.035);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                color: rgba(255, 255, 255, 0.45);
+                text-decoration: none;
+                font-size: 0.65rem;
+                font-weight: 600;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                border-radius: 13px;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                box-shadow:
+                    0 2px 10px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                            background 0.22s ease,
+                            border-color 0.22s ease,
+                            color 0.22s ease,
+                            box-shadow 0.28s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .smallbox::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 55%);
+                pointer-events: none;
+            }
+
+            .smallbox:hover {
+                transform: translateY(-4px) scale(1.06);
+                background: rgba(255, 255, 255, 0.075);
+                border-color: rgba(255, 255, 255, 0.15);
+                color: rgba(255, 255, 255, 0.9);
+                box-shadow:
+                    0 12px 30px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+
+        </style>
+
+        <script src="misc.js"></script>
+    </head>
+
+    <body>
+        <div id="clock">
+            <span id="clock-time">
+                <span id="clock-hours"></span><i>:</i><span id="clock-minutes"></span>
+            </span>
+            <span id="clock-ampm"></span>
+        </div>
+
+        <script src="clock.js"></script>
+
+        <div class="container">
+            <div class="search-bar">
+                <form class="search-form" method="get" action="https://chat.openai.com/" target="_blank" autocomplete="off">
+                    <input name="q" class="ddg-field" placeholder="Search with ChatGPT" autofocus>
+                    <button type="submit" class="ddg-submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div id="widgets">
+                <a class="box illias-box" href="https://qis-extern.hs-karlsruhe.de/lm_auth_proxy?DoLMLogin?curl=L2f&curlid=3855861394-1785402428&curlmode=0" target="_blank" rel="noopener noreferrer">HS-Noten</a>
+                <a class="box hsportal-box" href="https://hisinone.extern-hs-karlsruhe.de/qisserver/pages/cs/sys/portal/hisinoneStartPage.faces" target="_blank" rel="noopener noreferrer">HS-Portal</a>
+                <a class="box gmx-box" href="https://owa.h-ka.de/lm_auth_proxy?DoLMLogin?curl=L2f&curlid=325477406-1132230133&curlmode=0" target="_blank" rel="noopener noreferrer">HS-Mail</a>
+                <a class="box stundenplan-box" href="https://www.gmx.net/#.pc_page.anmelden.index.hero_1.homepage" target="_blank" rel="noopener noreferrer">GMX</a>
+                <a class="box HS-Mail-box" href="https://ilias.h-ka.de/ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems" target="_blank" rel="noopener noreferrer">ILIAS</a>
+                <a class="box Chess-box" href="https://www.chess.com/home" target="_blank" rel="noopener noreferrer">Chess</a>
+            </div>
+
+            <div id="newWidgets">
+                <a class="smallbox Github" href="https://github.com/BenUni28" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a class="smallbox Gmail" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer">Gmail</a>
+                <a class="smallbox LinkedIn" href="https://www.linkedin.com/feed/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a class="smallbox Colab" href="https://habit-tracker-ten-psi-73.vercel.app/" target="_blank" rel="noopener noreferrer">Habits</a>
+                <a class="smallbox GoogleDrive" href="https://drive.google.com/drive/my-drive?hl=de" target="_blank" rel="noopener noreferrer">G-Drive</a>
+                <a class="smallbox GoogleDocs" href="https://docs.google.com/document/u/0/" target="_blank" rel="noopener noreferrer">G-Docs</a>
+            </div>
+        </div>
+    </body>
+</html>
